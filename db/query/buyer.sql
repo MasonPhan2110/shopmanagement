@@ -11,7 +11,7 @@ RETURNING *;
 SELECT * FROM "buyer"
 WHERE name = $1 LIMIT 1;
 
--- name: GetProductForUpdate :one
+-- name: GetBuyerForUpdate :one
 SELECT * FROM "buyer"
 WHERE name = $1 LIMIT 1
 FOR NO KEY UPDATE;
@@ -19,8 +19,8 @@ FOR NO KEY UPDATE;
 -- name: ListBuyer :many
 SELECT * FROM "buyer"
 ORDER BY id
-LIMIT $2
-OFFSET $3;
+LIMIT $1
+OFFSET $2;
 
 -- name: UpdateBuyer :one
 UPDATE "buyer"

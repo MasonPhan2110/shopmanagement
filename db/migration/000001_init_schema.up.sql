@@ -63,8 +63,6 @@ ALTER TABLE "order" ADD FOREIGN KEY ("buyer_id") REFERENCES "buyer" ("id");
 
 ALTER TABLE "order" ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id");
 
-ALTER TABLE "order" ADD FOREIGN KEY ("buyer_id") REFERENCES "buyer" ("id");
-
 ALTER TABLE "entry" ADD FOREIGN KEY ("order_id") REFERENCES "order" ("id");
 
 ALTER TABLE "entry" ADD FOREIGN KEY ("inventory_id") REFERENCES "inventory" ("id");

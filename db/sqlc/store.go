@@ -9,6 +9,7 @@ import (
 type Store interface {
 	Querier
 	PrepareOrderTX(ctx context.Context, arg PrepareOrderParams) (PrepareOrderResult, error)
+	CreateOrderTX(ctx context.Context, arg CreateOrderTXParams) (CreateOrderTXResult, error)
 }
 
 // SQLStore provides all functions to execute SQL queries and transactions
@@ -53,7 +54,39 @@ func (store *SQLStore) CreateOrderTX(ctx context.Context, arg CreateOrderTXParam
 
 		result.Buyer, err = q.GetBuyer(ctx, arg.BuyerName)
 		if err != nil {
-			return err
+			if err == sql.ErrNoRows {
+				result.Buyer, err = q.CreateBuyer(ctx, arg.BuyerName)
+				if err != nil {
+					return err
+				}
+				_, err = q.CreateBuyerAddress(ctx, CreateBuyerAddressParams{
+					BuyerID: result.Buyer.ID,
+					Address: arg.Address,
+				})
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+
+		}
+		_, err = q.GetAddress(ctx, GetAddressParams{
+			BuyerID: result.Order.BuyerID,
+			Address: arg.Address,
+		})
+		if err != nil {
+			if err == sql.ErrNoRows {
+				_, err = q.CreateBuyerAddress(ctx, CreateBuyerAddressParams{
+					BuyerID: result.Buyer.ID,
+					Address: arg.Address,
+				})
+				if err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
 		}
 
 		result.Order, err = q.CreateOrder(ctx, CreateOrderParams{
@@ -70,6 +103,7 @@ func (store *SQLStore) CreateOrderTX(ctx context.Context, arg CreateOrderTXParam
 		if err != nil {
 			return err
 		}
+		result.Price = uint64(result.Product.Price) * uint64(toGam(arg.Amount, arg.Unit))
 		return nil
 	})
 
@@ -148,11 +182,13 @@ type CreateOrderTXParams struct {
 	ProductID int64  `json:"product_id"`
 	Amount    int64  `json:"amount"`
 	Unit      string `json:"unit"`
+	Address   string `json:"address"`
 }
 type CreateOrderTXResult struct {
 	Order   Order   `json:"order"`
 	Buyer   Buyer   `json:"buyer"`
 	Product Product `json:"product"`
+	Price   uint64  `json:"price"`
 }
 
 type PrepareOrderParams struct {

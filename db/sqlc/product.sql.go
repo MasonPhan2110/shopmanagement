@@ -11,7 +11,7 @@ const addProductAmount = `-- name: AddProductAmount :one
 UPDATE "product"
 SET amount = amount + $1
 WHERE id = $2
-RETURNING id, type, name, amount, unit, update_at, created_at
+RETURNING id, type, name, amount, unit, price, update_at, created_at
 `
 
 type AddProductAmountParams struct {
@@ -28,6 +28,7 @@ func (q *Queries) AddProductAmount(ctx context.Context, arg AddProductAmountPara
 		&i.Name,
 		&i.Amount,
 		&i.Unit,
+		&i.Price,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)
@@ -42,7 +43,7 @@ INSERT INTO "product" (
   unit
 ) VALUES (
   $1, $2, $3, $4
-) RETURNING id, type, name, amount, unit, update_at, created_at
+) RETURNING id, type, name, amount, unit, price, update_at, created_at
 `
 
 type CreateProductParams struct {
@@ -66,6 +67,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 		&i.Name,
 		&i.Amount,
 		&i.Unit,
+		&i.Price,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)
@@ -73,7 +75,7 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) (P
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, type, name, amount, unit, update_at, created_at FROM "product"
+SELECT id, type, name, amount, unit, price, update_at, created_at FROM "product"
 WHERE id = $1 LIMIT 1
 `
 
@@ -86,6 +88,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 		&i.Name,
 		&i.Amount,
 		&i.Unit,
+		&i.Price,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)
@@ -93,7 +96,7 @@ func (q *Queries) GetProduct(ctx context.Context, id int64) (Product, error) {
 }
 
 const getProductForUpdate = `-- name: GetProductForUpdate :one
-SELECT id, type, name, amount, unit, update_at, created_at FROM "product"
+SELECT id, type, name, amount, unit, price, update_at, created_at FROM "product"
 WHERE id = $1 LIMIT 1
 FOR NO KEY UPDATE
 `
@@ -107,6 +110,7 @@ func (q *Queries) GetProductForUpdate(ctx context.Context, id int64) (Product, e
 		&i.Name,
 		&i.Amount,
 		&i.Unit,
+		&i.Price,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)
@@ -114,7 +118,7 @@ func (q *Queries) GetProductForUpdate(ctx context.Context, id int64) (Product, e
 }
 
 const listProduct = `-- name: ListProduct :many
-SELECT id, type, name, amount, unit, update_at, created_at FROM "product"
+SELECT id, type, name, amount, unit, price, update_at, created_at FROM "product"
 WHERE name = $1
 ORDER BY id
 LIMIT $2
@@ -142,6 +146,7 @@ func (q *Queries) ListProduct(ctx context.Context, arg ListProductParams) ([]Pro
 			&i.Name,
 			&i.Amount,
 			&i.Unit,
+			&i.Price,
 			&i.UpdateAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -162,7 +167,7 @@ const updateProduct = `-- name: UpdateProduct :one
 UPDATE "product"
 SET amount = $2
 WHERE id = $1
-RETURNING id, type, name, amount, unit, update_at, created_at
+RETURNING id, type, name, amount, unit, price, update_at, created_at
 `
 
 type UpdateProductParams struct {
@@ -179,6 +184,7 @@ func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) (P
 		&i.Name,
 		&i.Amount,
 		&i.Unit,
+		&i.Price,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)

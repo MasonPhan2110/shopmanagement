@@ -9,26 +9,19 @@ import (
 
 const createBuyer = `-- name: CreateBuyer :one
 INSERT INTO "buyer" (
-  name,
-  address
+  name
 ) VALUES (
-  $1, $2
+  $1
 )
-RETURNING id, name, address, update_at, created_at
+RETURNING id, name, update_at, created_at
 `
 
-type CreateBuyerParams struct {
-	Name    string `json:"name"`
-	Address string `json:"address"`
-}
-
-func (q *Queries) CreateBuyer(ctx context.Context, arg CreateBuyerParams) (Buyer, error) {
-	row := q.db.QueryRowContext(ctx, createBuyer, arg.Name, arg.Address)
+func (q *Queries) CreateBuyer(ctx context.Context, name string) (Buyer, error) {
+	row := q.db.QueryRowContext(ctx, createBuyer, name)
 	var i Buyer
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Address,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)
@@ -36,7 +29,7 @@ func (q *Queries) CreateBuyer(ctx context.Context, arg CreateBuyerParams) (Buyer
 }
 
 const getBuyer = `-- name: GetBuyer :one
-SELECT id, name, address, update_at, created_at FROM "buyer"
+SELECT id, name, update_at, created_at FROM "buyer"
 WHERE name = $1 LIMIT 1
 `
 
@@ -46,26 +39,6 @@ func (q *Queries) GetBuyer(ctx context.Context, name string) (Buyer, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
-		&i.Address,
-		&i.UpdateAt,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getBuyerForUpdate = `-- name: GetBuyerForUpdate :one
-SELECT id, name, address, update_at, created_at FROM "buyer"
-WHERE name = $1 LIMIT 1
-FOR NO KEY UPDATE
-`
-
-func (q *Queries) GetBuyerForUpdate(ctx context.Context, name string) (Buyer, error) {
-	row := q.db.QueryRowContext(ctx, getBuyerForUpdate, name)
-	var i Buyer
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Address,
 		&i.UpdateAt,
 		&i.CreatedAt,
 	)
@@ -73,7 +46,7 @@ func (q *Queries) GetBuyerForUpdate(ctx context.Context, name string) (Buyer, er
 }
 
 const listBuyer = `-- name: ListBuyer :many
-SELECT id, name, address, update_at, created_at FROM "buyer"
+SELECT id, name, update_at, created_at FROM "buyer"
 ORDER BY id
 LIMIT $1
 OFFSET $2
@@ -96,7 +69,6 @@ func (q *Queries) ListBuyer(ctx context.Context, arg ListBuyerParams) ([]Buyer, 
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
-			&i.Address,
 			&i.UpdateAt,
 			&i.CreatedAt,
 		); err != nil {
@@ -111,29 +83,4 @@ func (q *Queries) ListBuyer(ctx context.Context, arg ListBuyerParams) ([]Buyer, 
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateBuyer = `-- name: UpdateBuyer :one
-UPDATE "buyer"
-SET address = $2
-WHERE id = $1
-RETURNING id, name, address, update_at, created_at
-`
-
-type UpdateBuyerParams struct {
-	ID      int64  `json:"id"`
-	Address string `json:"address"`
-}
-
-func (q *Queries) UpdateBuyer(ctx context.Context, arg UpdateBuyerParams) (Buyer, error) {
-	row := q.db.QueryRowContext(ctx, updateBuyer, arg.ID, arg.Address)
-	var i Buyer
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Address,
-		&i.UpdateAt,
-		&i.CreatedAt,
-	)
-	return i, err
 }

@@ -6,10 +6,16 @@ import (
 	"time"
 )
 
+type Address struct {
+	ID        int64     `json:"id"`
+	BuyerID   int64     `json:"buyer_id"`
+	Address   string    `json:"address"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Buyer struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
-	Address   string    `json:"address"`
 	UpdateAt  time.Time `json:"update_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
@@ -46,6 +52,7 @@ type Product struct {
 	Name      string    `json:"name"`
 	Amount    int64     `json:"amount"`
 	Unit      string    `json:"unit"`
+	Price     int64     `json:"price"`
 	UpdateAt  time.Time `json:"update_at"`
 	CreatedAt time.Time `json:"created_at"`
 }

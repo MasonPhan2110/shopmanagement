@@ -24,8 +24,10 @@ CREATE TABLE "product" (
     "name" varchar UNIQUE NOT NULL,
     "amount" bigint NOT NULL,
     "unit" varchar NOT NULL,
+    "price" bigint NOT NULL,
     "update_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-    "created_at" timestamptz NOT NULL DEFAULT (now())
+    "created_at" timestamptz NOT NULL DEFAULT (now()),
+    CHECK ("amount" >= 0)
 );
 
 CREATE TABLE "entry" (
@@ -43,14 +45,21 @@ CREATE TABLE "inventory" (
     "amount" bigint NOT NULL,
     "update_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
     "created_at" timestamptz NOT NULL DEFAULT (now())
+    CHECK ("amount" >= 0)
 );
 
 CREATE TABLE "buyer" (
-    "id" bigserial PRIMARY KEY,
-    "name" varchar UNIQUE NOT NULL,
-    "address" varchar NOT NULL,
-    "update_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-    "created_at" timestamptz NOT NULL DEFAULT (now())
+  "id" bigserial PRIMARY KEY,
+  "name" varchar UNIQUE NOT NULL,
+  "update_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
+  "created_at" timestamptz NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "address" (
+  "id" bigserial PRIMARY KEY,
+  "buyer_id" bigserial NOT NULL,
+  "address" varchar NOT NULL,
+  "created_at" timestamptz NOT NULL DEFAULT (now())
 );
 
 CREATE INDEX ON "order" ("buyer_id");
@@ -66,3 +75,5 @@ ALTER TABLE "order" ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id");
 ALTER TABLE "entry" ADD FOREIGN KEY ("order_id") REFERENCES "order" ("id");
 
 ALTER TABLE "entry" ADD FOREIGN KEY ("inventory_id") REFERENCES "inventory" ("id");
+
+ALTER TABLE "address" ADD FOREIGN KEY ("buyer_id") REFERENCES "buyer" ("id");

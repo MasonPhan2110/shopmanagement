@@ -2,10 +2,9 @@
 INSERT INTO "product" (
   type,
   name,
-  amount,
-  unit
+  amount
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3
 ) RETURNING *;
 
 
@@ -25,11 +24,6 @@ ORDER BY id
 LIMIT $2
 OFFSET $3;
 
--- name: UpdateProduct :one
-UPDATE "product"
-SET amount = $2
-WHERE id = $1
-RETURNING *;
 
 -- name: AddProductAmount :one
 UPDATE "product"

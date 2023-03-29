@@ -99,11 +99,11 @@ func (store *SQLStore) CreateOrderTX(ctx context.Context, arg CreateOrderTXParam
 			return err
 		}
 
-		result.Product, err = addAmountProduct(ctx, q, result.Order.ProductID, result.Order.Amount, result.Order.Unit)
+		result.Product, err = addAmountProduct(ctx, q, result.Order.ProductID, -result.Order.Amount, result.Order.Unit)
 		if err != nil {
 			return err
 		}
-		result.Price = uint64(result.Product.Price) * uint64(toGam(arg.Amount, arg.Unit))
+		result.Price = arg.Price
 		return nil
 	})
 
@@ -182,6 +182,7 @@ type CreateOrderTXParams struct {
 	ProductID int64  `json:"product_id"`
 	Amount    int64  `json:"amount"`
 	Unit      string `json:"unit"`
+	Price     uint64 `json:"price"`
 	Address   string `json:"address"`
 }
 type CreateOrderTXResult struct {

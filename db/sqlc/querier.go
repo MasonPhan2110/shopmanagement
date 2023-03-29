@@ -33,7 +33,6 @@ type Querier interface {
 	ListOrder(ctx context.Context, arg ListOrderParams) ([]Order, error)
 	ListProduct(ctx context.Context, arg ListProductParams) ([]Product, error)
 	UpdateInventory(ctx context.Context, arg UpdateInventoryParams) (Inventory, error)
-	UpdateProduct(ctx context.Context, arg UpdateProductParams) (Product, error)
 	UpdateUserHashedPassword(ctx context.Context, arg UpdateUserHashedPasswordParams) (User, error)
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) (User, error)
 }

@@ -51,8 +51,6 @@ type Product struct {
 	Type      string    `json:"type"`
 	Name      string    `json:"name"`
 	Amount    int64     `json:"amount"`
-	Unit      string    `json:"unit"`
-	Price     int64     `json:"price"`
 	UpdateAt  time.Time `json:"update_at"`
 	CreatedAt time.Time `json:"created_at"`
 }

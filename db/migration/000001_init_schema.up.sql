@@ -23,8 +23,6 @@ CREATE TABLE "product" (
     "type" varchar NOT NULL,
     "name" varchar UNIQUE NOT NULL,
     "amount" bigint NOT NULL,
-    "unit" varchar NOT NULL,
-    "price" bigint NOT NULL,
     "update_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
     "created_at" timestamptz NOT NULL DEFAULT (now()),
     CHECK ("amount" >= 0)

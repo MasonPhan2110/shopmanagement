@@ -121,6 +121,10 @@ func (store *SQLStore) PrepareOrderTX(ctx context.Context, arg PrepareOrderParam
 		if err != nil {
 			return err
 		}
+		result.Product, err = q.GetProduct(ctx, result.Order.ProductID)
+		if err != nil {
+			return err
+		}
 
 		result.Items, err = addAmountInventory(ctx, q, arg.ItemIDs, arg.ItemAmount)
 		if err != nil {
@@ -141,7 +145,7 @@ func addAmountInventory(
 	for i := 0; i < len(itemIDs); i++ {
 		item, err := q.AddInventoryAmount(ctx, AddInventoryAmountParams{
 			ID:     itemIDs[i],
-			Amount: itemAmount[i],
+			Amount: -itemAmount[i],
 		})
 		if err != nil {
 			return nil, err

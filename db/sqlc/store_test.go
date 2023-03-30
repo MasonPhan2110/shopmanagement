@@ -9,6 +9,8 @@ import (
 	"github.com/test-go/testify/require"
 )
 
+var orders = []Order{}
+
 func TestCreateOrder(t *testing.T) {
 	store := NewStore(testDB)
 	product := createRandomProduct(t)
@@ -34,6 +36,7 @@ func TestCreateOrder(t *testing.T) {
 				Address:   util.RandomString(6),
 				Price:     price,
 			})
+			orders = append(orders, result.Order)
 			errs <- err
 			results <- result
 		}()
@@ -75,5 +78,72 @@ func TestCreateOrder(t *testing.T) {
 
 		// check price
 		require.Equal(t, price, result.Price)
+
+		fmt.Println(">> After: ", product_result.Amount)
+
+	}
+}
+
+func TestPrepareOrder(t *testing.T) {
+	store := NewStore(testDB)
+
+	item := createRandomItem(t)
+
+	fmt.Println(">> Before: ", item.Amount)
+
+	n := 5
+	amount := int64(1)
+
+	errs := make(chan error)
+	results := make(chan PrepareOrderResult)
+
+	for i := 0; i < n; i++ {
+		go func(i int) {
+			ctx := context.Background()
+			fmt.Println("Order ID", orders[i].ID)
+			result, err := store.PrepareOrderTX(ctx, PrepareOrderParams{
+				OrderID:    orders[i].ID,
+				ItemIDs:    []int64{item.ID},
+				ItemAmount: []int64{amount},
+			})
+			errs <- err
+			results <- result
+		}(i)
+	}
+
+	for i := 0; i < n; i++ {
+		err := <-errs
+		require.NoError(t, err)
+
+		result := <-results
+		require.NotEmpty(t, result)
+
+		// check Order
+		order := result.Order
+		require.NotEmpty(t, order)
+		require.NotEmpty(t, order.ID)
+		require.Equal(t, order.Amount, amount)
+		require.NotZero(t, order.ID)
+		require.NotZero(t, order.CreatedAt)
+
+		// check Product
+		product := result.Product
+		require.NotEmpty(t, product)
+		require.NotEmpty(t, product.Amount)
+		require.NotEmpty(t, product.Name)
+		require.NotEmpty(t, product.Type)
+		require.NotEmpty(t, product.ID)
+		require.NotZero(t, product.ID)
+		require.NotZero(t, product.CreatedAt)
+
+		// check Item
+		item_result := result.Items[0]
+		fmt.Println("Item ", item_result)
+		require.NotEmpty(t, item_result)
+		require.Equal(t, item.Amount-int64((i+1))*amount, item_result.Amount)
+		require.Equal(t, item.Name, item_result.Name)
+		require.Equal(t, item.Type, item_result.Type)
+		require.Equal(t, item.ID, item_result.ID)
+		require.Equal(t, item.CreatedAt, item_result.CreatedAt)
 	}
 }
